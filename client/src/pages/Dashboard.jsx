@@ -9,22 +9,29 @@ const Dashboard = () => {
   const [error, setError] = useState('');
   const [showOnlyMine, setShowOnlyMine] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
+
+  // Filters
+  const [searchTerm, setSearchTerm] = useState('');
+  const [category, setCategory] = useState('All');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+
   const navigate = useNavigate();
 
   const fetchListings = async () => {
     try {
       setLoading(true);
-      const url = showOnlyMine 
+      const url = showOnlyMine
         ? `http://localhost:5000/api/listings?userId=${currentUserId}`
         : 'http://localhost:5000/api/listings';
-      
+
       const res = await fetch(url, {
         method: 'GET',
         credentials: 'include',
       });
-      
+
       const data = await res.json();
-      
+
       if (!res.ok) {
         throw new Error(data.message || 'Failed to fetch listings');
       }
@@ -46,16 +53,40 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    if (showOnlyMine && currentUserId) {
-      fetchListings();
-    } else {
-      fetchListings();
-    }
+    fetchListings();
   }, [showOnlyMine, currentUserId]);
+
+  // Apply filters
+  useEffect(() => {
+    let filtered = listings;
+
+    if (searchTerm.trim()) {
+      filtered = filtered.filter((item) =>
+        item.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (category !== 'All') {
+      filtered = filtered.filter((item) => item.category === category);
+    }
+
+    if (minPrice) {
+      filtered = filtered.filter((item) => parseFloat(item.price) >= parseFloat(minPrice));
+    }
+
+    if (maxPrice) {
+      filtered = filtered.filter((item) => parseFloat(item.price) <= parseFloat(maxPrice));
+    }
+
+    setFilteredListings(filtered);
+  }, [searchTerm, category, minPrice, maxPrice, listings]);
 
   const handleListingClick = (listingId) => {
     navigate(`/listings/${listingId}`);
   };
+
+  // Get unique categories for dropdown
+  const categories = ['All', ...new Set(listings.map((item) => item.category))];
 
   return (
     <div className="dashboard-container" style={{ display: 'flex', minHeight: '100vh' }}>
@@ -63,78 +94,116 @@ const Dashboard = () => {
 
       <main style={{ flex: 1, padding: '20px' }}>
         <h2>{showOnlyMine ? 'My Listings' : 'All Listings'}</h2>
+
+        {/* Filters */}
+        <div style={{ marginBottom: '20px', display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+          <input
+            type="text"
+            placeholder="Search listings by title..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              padding: '10px',
+              width: '200px',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+            }}
+          />
+
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            style={{
+              padding: '10px',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+            }}
+          >
+            {categories.map((cat, idx) => (
+              <option key={idx} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="number"
+            placeholder="Min Price"
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
+            style={{
+              padding: '10px',
+              width: '120px',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+            }}
+          />
+
+          <input
+            type="number"
+            placeholder="Max Price"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+            style={{
+              padding: '10px',
+              width: '120px',
+              border: '1px solid #ccc',
+              borderRadius: '4px',
+            }}
+          />
+        </div>
+
         {loading && <div>Loading...</div>}
         {error && <p style={{ color: 'red' }}>{error}</p>}
 
         {!loading && filteredListings.length === 0 && (
-          <p>{showOnlyMine ? "You haven't created any listings yet." : "No listings found."}</p>
+          <p>{showOnlyMine ? "You haven't created any listings yet." : 'No listings found.'}</p>
         )}
 
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', 
-          gap: '20px',
-          cursor: 'pointer'
-        }}>
-          {filteredListings.map(item => (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+            gap: '20px',
+            cursor: 'pointer',
+          }}
+        >
+          {filteredListings.map((item) => (
             <div
               key={item._id}
               onClick={() => handleListingClick(item._id)}
-              style={{ 
+              style={{
                 border: '1px solid #ccc',
                 padding: '15px',
                 borderRadius: '8px',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                transition: 'transform 0.2s',
-                ':hover': {
-                  transform: 'translateY(-5px)'
-                }
               }}
             >
               {item.image && (
-                <img 
-                  src={`http://localhost:5000/${item.image}`} 
+                <img
+                  src={`http://localhost:5000/${item.image}`}
                   alt={item.title}
-                  style={{ 
+                  style={{
                     width: '100%',
                     height: '150px',
                     objectFit: 'cover',
                     borderRadius: '4px',
-                    marginBottom: '10px'
-                  }} 
+                    marginBottom: '10px',
+                  }}
                 />
               )}
-              <h3 style={{ margin: '0 0 5px 0' }}>{item.title}</h3>
-              <p style={{ 
-                color: '#666',
-                fontSize: '0.9rem',
-                margin: '0 0 10px 0',
-                minHeight: '40px'
-              }}>
-                {item.description.length > 60 
-                  ? `${item.description.substring(0, 60)}...` 
+              <h3>{item.title}</h3>
+              <p style={{ fontSize: '0.9rem', color: '#555' }}>
+                {item.description.length > 60
+                  ? item.description.slice(0, 60) + '...'
                   : item.description}
               </p>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <p style={{ fontWeight: 'bold', margin: '0' }}>
-                  ${parseFloat(item.price).toFixed(2)}
-                </p>
-                <p style={{ 
-                  color: '#888',
-                  fontSize: '0.8rem',
-                  margin: '0'
-                }}>
-                  {item.category}
-                </p>
+                <strong>${parseFloat(item.price).toFixed(2)}</strong>
+                <span>{item.category}</span>
               </div>
               {item.userId === currentUserId && (
-                <p style={{ 
-                  color: '#007bff',
-                  fontSize: '0.8rem',
-                  margin: '5px 0 0 0'
-                }}>
-                  (Your listing)
-                </p>
+                <p style={{ color: '#007bff', fontSize: '0.8rem' }}>(Your listing)</p>
               )}
             </div>
           ))}
@@ -145,4 +214,5 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
 

@@ -120,7 +120,7 @@ function CreateListing() {
       </label>
 
       <label>
-        Price ($):
+        Price (Dollars):
         <input
           type="number"
           name="price"
