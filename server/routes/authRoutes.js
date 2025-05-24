@@ -98,5 +98,32 @@ router.post('/login', async (req, res) => {
     }
 });
 
-module.exports = router;
+// PATCH /api/auth/update-info
+router.patch('/update-info', async (req, res) => {
+    const { id, university, department, program, graduationYear } = req.body;
 
+    if (!id) {
+        return res.status(400).json({ success: false, message: "User ID is required" });
+    }
+
+    try {
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        if (university !== undefined) user.university = university;
+        if (department !== undefined) user.department = department;
+        if (program !== undefined) user.program = program;
+        if (graduationYear !== undefined) user.graduationYear = graduationYear;
+
+        await user.save();
+
+        res.json({ success: true, message: "User info updated", user });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});
+
+module.exports = router;
