@@ -1,14 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const Listing = require('../models/Listing'); // Make sure you have this model
+const Listing = require('../models/Listing'); // Make sure this path is correct
 
+// Configure multer for file uploads
 const upload = multer({ dest: 'uploads/' });
 
-// GET all listings
+// GET all listings (or filtered by user if query param exists)
 router.get('/', async (req, res) => {
   try {
-    const listings = await Listing.find(); // Fetch from database
+    let query = {};
+    
+    if (req.query.userId) {
+      query.userId = req.query.userId;
+    }
+
+    const listings = await Listing.find(query);
     res.json({ 
       success: true,
       listings 
@@ -22,19 +29,20 @@ router.get('/', async (req, res) => {
   }
 });
 
+
 // POST create new listing
 router.post('/', upload.single('image'), async (req, res) => {
   try {
-    const { title, description, price, category } = req.body;
+    const { title, description, price, category, userId } = req.body;
     const imagePath = req.file ? req.file.path : null;
 
-    // Create and save to database
     const newListing = new Listing({
       title,
       description,
       price,
       category,
-      image: imagePath
+      image: imagePath,
+      userId
     });
 
     await newListing.save();
