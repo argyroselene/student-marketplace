@@ -1,157 +1,165 @@
 import React, { useState } from 'react';
 
-export default function CreateListing() {
+const categories = ['Electronics', 'Books', 'Clothing', 'Furniture', 'Other'];
+
+function CreateListing() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    type: 'item', // default value
     price: '',
-    pricingModel: 'fixed', // default value
-    condition: '',
-    visibility: 'university',
     category: '',
+    image: null,
   });
-
+  const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(null);
+  const [message, setMessage] = useState('');
 
-  // Handle form input changes
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, files } = e.target;
+    if (name === 'image') {
+      const file = files[0];
+      setFormData((prev) => ({ ...prev, image: file }));
+      if (file) {
+        setPreview(URL.createObjectURL(file));
+      } else {
+        setPreview(null);
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+    setMessage('');
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.category) {
+      setMessage('Please select a category.');
+      return;
+    }
+
     setLoading(true);
-    setMessage(null);
+    const data = new FormData();
+    for (const key in formData) {
+      data.append(key, formData[key]);
+    }
 
     try {
-      const response = await fetch('http://localhost:5000/api/listings', {
+      const res = await fetch('http://localhost:5000/api/listings', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // Add auth token here if you use one, e.g.:
-          // 'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData),
+        body: data,
       });
+      if (!res.ok) {
+      const error = await res.text();
+      throw new Error(error);
+    }
 
-      const data = await response.json();
-
-      if (response.ok) {
+      const result = await res.json();
+      if (result.success) {
         setMessage('Listing created successfully!');
         setFormData({
           title: '',
           description: '',
-          type: 'item',
           price: '',
-          pricingModel: 'fixed',
-          condition: '',
-          visibility: 'university',
           category: '',
+          image: null,
         });
+        setPreview(null);
       } else {
-        setMessage(data.message || 'Failed to create listing.');
+        setMessage(result.message || 'Failed to create listing.');
       }
     } catch (err) {
-      setMessage('Server error. Try again later.');
-    } finally {
-      setLoading(false);
+      setMessage('Upload failed, please try again.');
+      console.error('Upload failed:', err);
     }
+    setLoading(false);
   };
 
   return (
-    <div style={{ maxWidth: '600px', margin: 'auto', padding: '1rem' }}>
-      <h2>Create a New Listing</h2>
-      {message && <p>{message}</p>}
-      <form onSubmit={handleSubmit}>
-        <label>
-          Title:<br />
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            required
-            />
-        </label><br /><br />
+    <form onSubmit={handleSubmit} className="listing-form" style={{ maxWidth: 400, margin: 'auto' }}>
+      <h2>Create New Listing</h2>
 
-        <label>
-          Description:<br />
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            required
-            rows={4}
-          />
-        </label><br /><br />
+      <label>
+        Title:
+        <input
+          type="text"
+          name="title"
+          value={formData.title}
+          onChange={handleChange}
+          required
+          placeholder="Enter product title"
+        />
+      </label>
 
-        <label>
-          Type:<br />
-          <select name="type" value={formData.type} onChange={handleChange}>
-            <option value="item">Item</option>
-            <option value="service">Service</option>
-          </select>
-        </label><br /><br />
+      <label>
+        Description:
+        <textarea
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+          required
+          placeholder="Enter product description"
+          rows={4}
+        />
+      </label>
 
-        <label>
-          Price:<br />
-          <input
-            type="number"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            required
-            min="0"
-            step="0.01"
-          />
-        </label><br /><br />
+      <label>
+        Price ($):
+        <input
+          type="number"
+          name="price"
+          value={formData.price}
+          onChange={handleChange}
+          required
+          min="0"
+          step="0.01"
+          placeholder="Enter price"
+        />
+      </label>
 
-        <label>
-          Pricing Model:<br />
-          <select name="pricingModel" value={formData.pricingModel} onChange={handleChange}>
-            <option value="fixed">Fixed</option>
-            <option value="hourly">Hourly</option>
-          </select>
-        </label><br /><br />
+      <label>
+        Category:
+        <select
+          name="category"
+          value={formData.category}
+          onChange={handleChange}
+          required
+        >
+          <option value="">-- Select category --</option>
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+      </label>
 
-        <label>
-          Condition:<br />
-          <input
-            type="text"
-            name="condition"
-            value={formData.condition}
-            onChange={handleChange}
-            placeholder="e.g. new, used"
-          />
-        </label><br /><br />
+      <label>
+        Product Image:
+        <input
+          type="file"
+          name="image"
+          accept="image/*"
+          onChange={handleChange}
+          required
+        />
+      </label>
 
-        <label>
-          Visibility:<br />
-          <select name="visibility" value={formData.visibility} onChange={handleChange}>
-            <option value="university">University</option>
-            <option value="public">Public</option>
-          </select>
-        </label><br /><br />
+      {preview && (
+        <img
+          src={preview}
+          alt="Preview"
+          style={{ width: '100%', maxHeight: 200, objectFit: 'contain', marginBottom: 10 }}
+        />
+      )}
 
-        <label>
-          Category:<br />
-          <input
-            type="text"
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            placeholder="e.g. electronics, tutoring"
-          />
-        </label><br /><br />
+      <button type="submit" disabled={loading}>
+        {loading ? 'Creating...' : 'Create Listing'}
+      </button>
 
-        <button type="submit" disabled={loading}>
-          {loading ? 'Creating...' : 'Create Listing'}
-        </button>
-      </form>
-    </div>
+      {message && <p style={{ marginTop: 10, color: message.includes('success') ? 'green' : 'red' }}>{message}</p>}
+    </form>
   );
 }
+
+export default CreateListing;
+

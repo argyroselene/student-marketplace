@@ -250,3 +250,71 @@ a {
 .signup-btn:hover {
   background-color: #c5b79d;
 }
+
+.listing-form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgb(0 0 0 / 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.listing-form h2 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.listing-form label {
+  display: block;
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.listing-form input[type="text"],
+.listing-form input[type="number"],
+.listing-form select,
+.listing-form textarea,
+.listing-form input[type="file"] {
+  width: 100%;
+  padding: 8px 10px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.listing-form textarea {
+  resize: vertical;
+}
+
+.listing-form button {
+  width: 100%;
+  background-color: #2e86de;
+  color: white;
+  font-size: 1.1rem;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.listing-form button:disabled {
+  background-color: #a0a0a0;
+  cursor: not-allowed;
+}
+
+.listing-form button:hover:not(:disabled) {
+  background-color: #1b4f72;
+}
+
+.listing-form img {
+  display: block;
+  margin: 10px auto;
+  border-radius: 6px;
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+}

@@ -9,6 +9,7 @@ import Profile from './pages/Profile';
 import Chat from './components/Chat';
 import CampusMap from './pages/CampusMap';
 import CreateListing from './pages/CreateListing';
+import Listings from './pages/Listings';
 // import Orders from './pages/Orders'; // Uncomment if used
 // import Settings from './pages/Settings'; // Uncomment if used
 
