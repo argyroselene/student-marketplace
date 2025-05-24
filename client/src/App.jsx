@@ -1,59 +1,40 @@
-import { useState } from "react";
+import React from 'react';
+import './index.css';
 
 export default function App() {
-  const [showLogin, setShowLogin] = useState(false);
-  const [showSignup, setShowSignup] = useState(false);
-
   return (
     <div className="app-container">
-      <h1>Welcome to Student Marketplace</h1>
+      <header className="header">
+        <h1>Student Marketplace Signup</h1>
+        <p>Create an account with your university email</p>
+      </header>
 
-      <p>Buy, sell, and exchange with fellow students securely and easily.</p>
+      <form className="form-container">
+        <input type="text" name="name" placeholder="Full Name" required />
 
-      <div>
-        <button
-          onClick={() => {
-            setShowSignup(false);
-            setShowLogin(true);
-          }}
-        >
-          Login
-        </button>
+        <input
+          type="email"
+          name="email"
+          placeholder="Email (.edu only)"
+          pattern="^[\w.-]+@[\w.-]+\.edu$"
+          title="Please enter a valid .edu email"
+          required
+        />
 
-        <button
-          onClick={() => {
-            setShowLogin(false);
-            setShowSignup(true);
-          }}
-        >
-          Sign Up
-        </button>
-      </div>
+        <input type="password" name="password" placeholder="Password" required />
 
-      {/* Login Form */}
-      {showLogin && (
-        <div className="form-container">
-          <h2>Login</h2>
-          <form>
-            <input type="email" placeholder="University Email" required />
-            <input type="password" placeholder="Password" required />
-            <button type="submit">Login</button>
-          </form>
-        </div>
-      )}
+        <input type="text" name="university" placeholder="University" />
+        <input type="text" name="department" placeholder="Department" />
+        <input type="text" name="program" placeholder="Program" />
+        <input type="text" name="year" placeholder="Year" />
+        <input type="text" name="graduationYear" placeholder="Graduation Year" />
 
-      {/* Signup Form */}
-      {showSignup && (
-        <div className="form-container">
-          <h2>Sign Up</h2>
-          <form>
-            <input type="text" placeholder="Full Name" required />
-            <input type="email" placeholder="University Email" required />
-            <input type="password" placeholder="Password" required />
-            <button type="submit">Sign Up</button>
-          </form>
-        </div>
-      )}
+        <input type="date" name="dob" placeholder="Date of Birth" />
+        <input type="tel" name="phone" placeholder="Phone Number" />
+
+        <button type="submit">Sign Up</button>
+      </form>
     </div>
   );
 }
+
