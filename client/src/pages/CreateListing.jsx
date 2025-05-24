@@ -32,6 +32,7 @@ function CreateListing() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!formData.category) {
       setMessage('Please select a category.');
       return;
@@ -39,19 +40,34 @@ function CreateListing() {
 
     setLoading(true);
     const data = new FormData();
+
+    // Append all form fields
     for (const key in formData) {
       data.append(key, formData[key]);
     }
 
+    // Append userId from localStorage
     try {
+      const storedUser = localStorage.getItem('user');
+      const user = storedUser ? JSON.parse(storedUser) : null;
+
+      if (!user || !user.id) {
+        setMessage('User not logged in or ID not found.');
+        setLoading(false);
+        return;
+      }
+
+      data.append('userId', user.id);
+
       const res = await fetch('http://localhost:5000/api/listings', {
         method: 'POST',
         body: data,
       });
+
       if (!res.ok) {
-      const error = await res.text();
-      throw new Error(error);
-    }
+        const error = await res.text();
+        throw new Error(error);
+      }
 
       const result = await res.json();
       if (result.success) {
@@ -71,6 +87,7 @@ function CreateListing() {
       setMessage('Upload failed, please try again.');
       console.error('Upload failed:', err);
     }
+
     setLoading(false);
   };
 
@@ -162,4 +179,3 @@ function CreateListing() {
 }
 
 export default CreateListing;
-

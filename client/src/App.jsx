@@ -10,6 +10,7 @@ import Chat from './components/Chat';
 import CampusMap from './pages/CampusMap';
 import CreateListing from './pages/CreateListing';
 import Listings from './pages/Listings';
+import ListingDetail from './pages/ListingDetail';
 // import Orders from './pages/Orders'; // Uncomment if used
 // import Settings from './pages/Settings'; // Uncomment if used
 
@@ -24,6 +25,7 @@ function App() {
       {/* <Route path="/dashboard/orders" element={<Orders />} />
       <Route path="/dashboard/settings" element={<Settings />} /> */}
       <Route path="/create-listing" element={<CreateListing />} />
+      <Route path="/listings/:id" element={<ListingDetail />} />
       <Route path="/chat" element={<Chat />} />
       <Route path="/map" element={<CampusMap />} />
     </Routes>

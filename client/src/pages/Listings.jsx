@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 function Listings() {
   const [listings, setListings] = useState([]);
@@ -40,12 +41,27 @@ function Listings() {
           <p>No listings found.</p>
         ) : (
           filteredListings.map(listing => (
-            <div key={listing._id} className="listing-card">
+            <Link
+              key={listing._id}
+              to={`/listings/${listing._id}`}
+              className="listing-card"
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                border: '1px solid #ddd',
+                marginBottom: '1rem',
+                padding: '1rem',
+                display: 'block',
+              }}
+            >
               <h3>{listing.title}</h3>
               <p>{listing.description}</p>
-              <img src={listing.imageURL} alt={listing.title} style={{ width: '150px' }} />
-              {/* Add other listing details */}
-            </div>
+              <img
+                src={listing.imageURL}
+                alt={listing.title}
+                style={{ width: '150px', objectFit: 'cover' }}
+              />
+            </Link>
           ))
         )}
       </div>
@@ -54,4 +70,5 @@ function Listings() {
 }
 
 export default Listings;
+
 

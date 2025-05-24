@@ -2,40 +2,43 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
-  const navigate = useNavigate(); // Must be inside the component
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    const res = await fetch('http://localhost:5000/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
+      console.log('Login response:', data);
 
-    if (res.ok) {
-      // Save the user object (with id, name, etc.) to localStorage
-      localStorage.setItem('user', JSON.stringify(data.user));
+      if (res.ok) {
+        if (!data.user || !data.user.id) {
+          alert('Login successful but user ID not found. Please check server response.');
+          return;
+        }
 
-      // Save the token if you want to use it later
-      localStorage.setItem('token', data.token);
+        // Save user to localStorage
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('token', data.token);
 
-      navigate('/dashboard');
-    } else {
-      alert(data.message || 'Login failed');
+        navigate('/dashboard');
+      } else {
+        alert(data.message || 'Login failed');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      alert('Something went wrong!');
     }
-  } catch (err) {
-    console.error('Login error:', err);
-    alert('Something went wrong!');
-  }
-};
-
+  };
 
   return (
     <div className="form-container">
@@ -48,7 +51,6 @@ const handleSubmit = async (e) => {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-
         <input
           type="password"
           placeholder="Password"
@@ -56,7 +58,6 @@ const handleSubmit = async (e) => {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-
         <button type="submit">Login</button>
       </form>
     </div>
