@@ -76,9 +76,17 @@ const ListingDetail = () => {
         </div>
 
         <div className="seller-section">
-          <h3>Seller Information</h3>
-          {/* Add seller details here */}
-        </div>
+  <h3>Seller Information</h3>
+  {listing.userId ? (
+    <>
+      <p><strong>Name:</strong> {listing.userId.name}</p>
+      <p><strong>Email:</strong> {listing.userId.email}</p>
+      {/* Add more fields like phone, university, etc. if available */}
+    </>
+  ) : (
+    <p>Seller information not available</p>
+  )}
+</div>
       </div>
 
       <button className="contact-button">Contact Seller</button>

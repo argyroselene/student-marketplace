@@ -62,7 +62,8 @@ router.post('/', upload.single('image'), async (req, res) => {
 // GET a single listing by ID
 router.get('/:id', async (req, res) => {
   try {
-    const listing = await Listing.findById(req.params.id);
+    const listing = await Listing.findById(req.params.id).populate('userId', 'name email'); // Add more fields if needed
+
 
     if (!listing) {
       return res.status(404).json({
