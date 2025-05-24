@@ -29,6 +29,7 @@ export default function Login() {
         // Save user to localStorage
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token);
+        localStorage.setItem('userId', data.user.id);
 
         navigate('/dashboard');
       } else {

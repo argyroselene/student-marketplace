@@ -12,7 +12,7 @@ const users = new Map();
 
 const authRoutes = require('./routes/authRoutes');
 const listingRoutes = require('./routes/listingRoutes');
-
+const userRoutes = require('./routes/userRoutes');
 // Initialize Express
 const app = express();
 app.use(express.json());
@@ -44,6 +44,8 @@ app.use(cors({
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/listings', listingRoutes);
+app.use('/api/users', userRoutes);
+
 app.use('/uploads', express.static('uploads'));
 // Sample route
 app.get('/', (req, res) => {
