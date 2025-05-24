@@ -1,35 +1,59 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [showLogin, setShowLogin] = useState(false);
+  const [showSignup, setShowSignup] = useState(false);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="app-container">
+      <h1>Welcome to Student Marketplace</h1>
 
-export default App
+      <p>Buy, sell, and exchange with fellow students securely and easily.</p>
+
+      <div>
+        <button
+          onClick={() => {
+            setShowSignup(false);
+            setShowLogin(true);
+          }}
+        >
+          Login
+        </button>
+
+        <button
+          onClick={() => {
+            setShowLogin(false);
+            setShowSignup(true);
+          }}
+        >
+          Sign Up
+        </button>
+      </div>
+
+      {/* Login Form */}
+      {showLogin && (
+        <div className="form-container">
+          <h2>Login</h2>
+          <form>
+            <input type="email" placeholder="University Email" required />
+            <input type="password" placeholder="Password" required />
+            <button type="submit">Login</button>
+          </form>
+        </div>
+      )}
+
+      {/* Signup Form */}
+      {showSignup && (
+        <div className="form-container">
+          <h2>Sign Up</h2>
+          <form>
+            <input type="text" placeholder="Full Name" required />
+            <input type="email" placeholder="University Email" required />
+            <input type="password" placeholder="Password" required />
+            <button type="submit">Sign Up</button>
+          </form>
+        </div>
+      )}
+    </div>
+  );
+}
