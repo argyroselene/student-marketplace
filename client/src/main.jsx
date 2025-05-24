@@ -4,8 +4,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom'; // ✅ ADD THIS
 import App from './App';
 import 'leaflet/dist/leaflet.css';
-
-
+import './UI.css';
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter> {/* ✅ Wrap App with BrowserRouter */}

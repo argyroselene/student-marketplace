@@ -1,35 +1,32 @@
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { Link } from 'react-router-dom';
+// import './Home.css'; // optional: style it professionally
 
 export default function Home() {
-  const navigate = useNavigate();
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-400 to-indigo-700 animated-gradient flex flex-col items-center justify-center px-6 py-12">
-      <h1 className="text-white text-5xl font-extrabold mb-8 text-center drop-shadow-lg">
-        Welcome to Student Marketplace
-      </h1>
-
-      <p className="text-indigo-200 mb-12 text-center max-w-lg">
-        Buy, sell, and exchange with fellow students securely and easily.
-      </p>
-
-      <div className="flex space-x-6">
-        <button
-          onClick={() => navigate('/login')}
-          className="bg-white text-indigo-700 px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-indigo-100 transition"
-        >
-          Login
-        </button>
-
-        <button
-          onClick={() => navigate('/signup')}
-          className="bg-indigo-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:bg-indigo-500 transition"
-        >
-          Sign Up
-        </button>
-      </div>
+    <div className="home-container">
+      <header className="hero">
+        <img
+          src="https://media.istockphoto.com/id/1419532732/photo/diversity-in-working-team-using-internet-on-phones-and-digital-tablet-for-teamwork-growth-in.jpg?s=612x612&w=0&k=20&c=cLeHG0e07LEDi2Mx8KZG9xxay7D4MSQK4NMdsKYRe1k=" // add your marketplace image to public/images
+          alt="Student Marketplace"
+          className="hero-image"
+        />
+        <div className="hero-text">
+          <h1>Welcome to Campus Exchange</h1>
+          <p>Buy, sell, and connect with your student community.</p>
+          <div className="hero-buttons">
+            <Link to="/login">
+              <button className="btn login-btn">Login</button>
+            </Link>
+            <Link to="/signup">
+              <button className="btn signup-btn">Sign Up</button>
+            </Link>
+          </div>
+        </div>
+      </header>
     </div>
   );
 }
+
 
 

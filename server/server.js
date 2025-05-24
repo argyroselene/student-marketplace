@@ -8,12 +8,14 @@ const http = require('http');
 const { Server } = require('socket.io');
 const users = new Map();
 
-// Routes
+// Routes // <-- This enables JSON body parsing
+
 const authRoutes = require('./routes/authRoutes');
 const listingRoutes = require('./routes/listingRoutes');
 
 // Initialize Express
 const app = express();
+app.use(express.json());
 const server = http.createServer(app); // Wrap Express in HTTP server
 const io = new Server(server, {
   cors: {
@@ -25,9 +27,19 @@ const io = new Server(server, {
 // Connect to MongoDB
 connectDB();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:5174'];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
 
 // Routes
 app.use('/api/auth', authRoutes);
