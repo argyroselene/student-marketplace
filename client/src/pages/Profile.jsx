@@ -106,13 +106,13 @@ const Profile = () => {
           >
             Edit Profile
           </button>
-          <button
-  className="btn signup-btn"
-  onClick={() => navigate(-1)} // or navigate('/dashboard') if you want a fixed route
-  style={{ marginBottom: '1rem' }}
->
-  ← Back
-</button>
+                      <button
+                          className="btn signup-btn"
+                          onClick={() => navigate(-1)} // or navigate('/dashboard') if you want a fixed route
+                          style={{ marginBottom: '1rem' }}
+                      >
+                          ← Back
+                      </button>
 
         </div>
       )}

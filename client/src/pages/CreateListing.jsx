@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // <-- import useNavigate
 
 const categories = ['Electronics', 'Books', 'Clothing', 'Furniture', 'Other'];
 
@@ -13,6 +14,7 @@ function CreateListing() {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const navigate = useNavigate(); // <-- initialize navigate
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -41,12 +43,10 @@ function CreateListing() {
     setLoading(true);
     const data = new FormData();
 
-    // Append all form fields
     for (const key in formData) {
       data.append(key, formData[key]);
     }
 
-    // Append userId from localStorage
     try {
       const storedUser = localStorage.getItem('user');
       const user = storedUser ? JSON.parse(storedUser) : null;
@@ -173,9 +173,22 @@ function CreateListing() {
         {loading ? 'Creating...' : 'Create Listing'}
       </button>
 
-      {message && <p style={{ marginTop: 10, color: message.includes('success') ? 'green' : 'red' }}>{message}</p>}
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
+        style={{ marginLeft: 10, padding: '8px 12px' }}
+      >
+        Back
+      </button>
+
+      {message && (
+        <p style={{ marginTop: 10, color: message.includes('success') ? 'green' : 'red' }}>
+          {message}
+        </p>
+      )}
     </form>
   );
 }
 
 export default CreateListing;
+
