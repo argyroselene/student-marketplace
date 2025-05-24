@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import Chat from './Chat'; // Import your Chat component
 
 const Dashboard = () => {
   const [listings, setListings] = useState([]);
@@ -15,6 +16,11 @@ const Dashboard = () => {
   const [category, setCategory] = useState('All');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+
+  // Chat states
+  const [conversations, setConversations] = useState([]);
+  const [selectedChatUserId, setSelectedChatUserId] = useState(null);
+  const [showChat, setShowChat] = useState(false);
 
   const navigate = useNavigate();
 
@@ -35,13 +41,13 @@ const Dashboard = () => {
       if (!res.ok) {
         throw new Error(data.message || 'Failed to fetch listings');
       }
-const sortedListings = (data.listings || []).sort(
-  (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-);
 
-setListings(sortedListings);
-setFilteredListings(sortedListings);
+      const sortedListings = (data.listings || []).sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
 
+      setListings(sortedListings);
+      setFilteredListings(sortedListings);
     } catch (err) {
       console.error('Failed to fetch listings:', err);
       setError(err.message);
@@ -50,14 +56,31 @@ setFilteredListings(sortedListings);
     }
   };
 
+  const fetchConversations = async (userId) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/messages/conversations/${userId}`);
+      const data = await res.json();
+      setConversations(data);
+    } catch (err) {
+      console.error('Failed to fetch conversations:', err);
+    }
+  };
+
   useEffect(() => {
     const userId = localStorage.getItem('userId');
     setCurrentUserId(userId);
-    fetchListings();
+
+    if (userId) {
+      fetchListings();
+      fetchConversations(userId);
+    }
   }, []);
 
   useEffect(() => {
-    fetchListings();
+    if (currentUserId) {
+      fetchListings();
+      fetchConversations(currentUserId);
+    }
   }, [showOnlyMine, currentUserId]);
 
   // Apply filters
@@ -248,12 +271,74 @@ setFilteredListings(sortedListings);
             </div>
           ))}
         </div>
+
+        {/* Messages Section */}
+        <h3 style={{ marginTop: '40px' }}>Messages</h3>
+        {conversations.length === 0 ? (
+          <p>No messages yet.</p>
+        ) : (
+          <div style={{ marginTop: '10px' }}>
+            {conversations.map((msg, idx) => {
+              // Determine other user id
+              const otherUserId = msg.senderId === currentUserId ? msg.recipientId : msg.senderId;
+              return (
+                <div
+                  key={idx}
+                  style={{
+                    border: '1px solid #ddd',
+                    padding: '10px',
+                    borderRadius: '4px',
+                    marginBottom: '10px',
+                    backgroundColor: '#f9f9f9',
+                  }}
+                >
+                  <p>
+                    Chat with: <strong>{otherUserId}</strong>
+                  </p>
+                  <p>Last message: {msg.text}</p>
+                  <button
+                    onClick={() => {
+                      setSelectedChatUserId(otherUserId);
+                      setShowChat(true);
+                    }}
+                    style={{
+                      padding: '6px 10px',
+                      background: '#007bff',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Open Chat
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Chat component */}
+        {showChat && selectedChatUserId && (
+          <Chat
+            currentUserId={currentUserId}
+            sellerId={selectedChatUserId}
+            onClose={() => {
+              setShowChat(false);
+              setSelectedChatUserId(null);
+              fetchConversations(currentUserId); // refresh conversations after chat close
+            }}
+          />
+        )}
       </main>
     </div>
   );
 };
 
 export default Dashboard;
+
+
+
 
 
 

@@ -6,7 +6,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
-import Chat from './components/Chat';
+import Chat from './pages/Chat';
 import CampusMap from './pages/CampusMap';
 import CreateListing from './pages/CreateListing';
 import Listings from './pages/Listings';
