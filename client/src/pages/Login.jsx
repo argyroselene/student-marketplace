@@ -7,31 +7,35 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+  try {
+    const res = await fetch('http://localhost:5000/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (res.ok) {
-        // Optionally: store token if you use it
-        // localStorage.setItem('token', data.token);
+    if (res.ok) {
+      // Save the user object (with id, name, etc.) to localStorage
+      localStorage.setItem('user', JSON.stringify(data.user));
 
-        navigate('/dashboard');
-      } else {
-        alert(data.message || 'Login failed');
-      }
-    } catch (err) {
-      console.error('Login error:', err);
-      alert('Something went wrong!');
+      // Save the token if you want to use it later
+      localStorage.setItem('token', data.token);
+
+      navigate('/dashboard');
+    } else {
+      alert(data.message || 'Login failed');
     }
-  };
+  } catch (err) {
+    console.error('Login error:', err);
+    alert('Something went wrong!');
+  }
+};
+
 
   return (
     <div className="form-container">

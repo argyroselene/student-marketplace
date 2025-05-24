@@ -6,6 +6,7 @@ const connectDB = require('./config/db'); // MongoDB connection
 const cors = require('cors'); // Allow frontend requests
 const http = require('http');
 const { Server } = require('socket.io');
+const users = new Map();
 
 // Routes
 const authRoutes = require('./routes/authRoutes');
@@ -38,17 +39,38 @@ app.get('/', (req, res) => {
 });
 
 // Socket.IO Events
-io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
+const userSocketMap = {}; // userId -> socket.id
 
-  socket.on('send_message', (data) => {
-    io.emit('receive_message', data); // Broadcast to all clients
+io.on('connection', (socket) => {
+  console.log('Socket connected:', socket.id);
+
+  // When user joins, register their socket
+  socket.on('join', ({ userId }) => {
+    userSocketMap[userId] = socket.id;
+    socket.userId = userId;
+    console.log(`User ${userId} joined with socket ${socket.id}`);
+  });
+
+  // Handle direct message
+  socket.on('send_message', ({ senderId, recipientId, text }) => {
+    const recipientSocketId = userSocketMap[recipientId];
+    if (recipientSocketId) {
+      io.to(recipientSocketId).emit('receive_message', {
+        senderId,
+        text,
+      });
+    }
   });
 
   socket.on('disconnect', () => {
+    if (socket.userId) {
+      delete userSocketMap[socket.userId];
+    }
     console.log('User disconnected:', socket.id);
   });
 });
+
+
 
 // Start Server
 const PORT = process.env.PORT || 5000;
