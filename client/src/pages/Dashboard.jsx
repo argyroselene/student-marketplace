@@ -35,9 +35,13 @@ const Dashboard = () => {
       if (!res.ok) {
         throw new Error(data.message || 'Failed to fetch listings');
       }
+const sortedListings = (data.listings || []).sort(
+  (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+);
 
-      setListings(data.listings || []);
-      setFilteredListings(data.listings || []);
+setListings(sortedListings);
+setFilteredListings(sortedListings);
+
     } catch (err) {
       console.error('Failed to fetch listings:', err);
       setError(err.message);
@@ -81,11 +85,37 @@ const Dashboard = () => {
     setFilteredListings(filtered);
   }, [searchTerm, category, minPrice, maxPrice, listings]);
 
+  const handleDelete = async (listingId) => {
+    const confirm = window.confirm('Are you sure you want to delete this listing?');
+    if (!confirm) return;
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/listings/${listingId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to delete listing');
+      }
+
+      // Refresh listings
+      fetchListings();
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Failed to delete listing');
+    }
+  };
+
+  const handleEdit = (listingId) => {
+    navigate(`/edit/${listingId}`);
+  };
+
   const handleListingClick = (listingId) => {
     navigate(`/listings/${listingId}`);
   };
 
-  // Get unique categories for dropdown
   const categories = ['All', ...new Set(listings.map((item) => item.category))];
 
   return (
@@ -102,22 +132,13 @@ const Dashboard = () => {
             placeholder="Search listings by title..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              padding: '10px',
-              width: '200px',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-            }}
+            style={{ padding: '10px', width: '200px', border: '1px solid #ccc', borderRadius: '4px' }}
           />
 
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            style={{
-              padding: '10px',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-            }}
+            style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
           >
             {categories.map((cat, idx) => (
               <option key={idx} value={cat}>
@@ -131,12 +152,7 @@ const Dashboard = () => {
             placeholder="Min Price"
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value)}
-            style={{
-              padding: '10px',
-              width: '120px',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-            }}
+            style={{ padding: '10px', width: '120px', border: '1px solid #ccc', borderRadius: '4px' }}
           />
 
           <input
@@ -144,12 +160,7 @@ const Dashboard = () => {
             placeholder="Max Price"
             value={maxPrice}
             onChange={(e) => setMaxPrice(e.target.value)}
-            style={{
-              padding: '10px',
-              width: '120px',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-            }}
+            style={{ padding: '10px', width: '120px', border: '1px solid #ccc', borderRadius: '4px' }}
           />
         </div>
 
@@ -165,45 +176,74 @@ const Dashboard = () => {
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
             gap: '20px',
-            cursor: 'pointer',
           }}
         >
           {filteredListings.map((item) => (
             <div
               key={item._id}
-              onClick={() => handleListingClick(item._id)}
               style={{
                 border: '1px solid #ccc',
                 padding: '15px',
                 borderRadius: '8px',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                position: 'relative',
               }}
             >
-              {item.image && (
-                <img
-                  src={`http://localhost:5000/${item.image}`}
-                  alt={item.title}
-                  style={{
-                    width: '100%',
-                    height: '150px',
-                    objectFit: 'cover',
-                    borderRadius: '4px',
-                    marginBottom: '10px',
-                  }}
-                />
-              )}
-              <h3>{item.title}</h3>
-              <p style={{ fontSize: '0.9rem', color: '#555' }}>
-                {item.description.length > 60
-                  ? item.description.slice(0, 60) + '...'
-                  : item.description}
-              </p>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <strong>${parseFloat(item.price).toFixed(2)}</strong>
-                <span>{item.category}</span>
+              <div onClick={() => handleListingClick(item._id)} style={{ cursor: 'pointer' }}>
+                {item.image && (
+                  <img
+                    src={`http://localhost:5000/${item.image}`}
+                    alt={item.title}
+                    style={{
+                      width: '100%',
+                      height: '150px',
+                      objectFit: 'cover',
+                      borderRadius: '4px',
+                      marginBottom: '10px',
+                    }}
+                  />
+                )}
+                <h3>{item.title}</h3>
+                <p style={{ fontSize: '0.9rem', color: '#555' }}>
+                  {item.description.length > 60
+                    ? item.description.slice(0, 60) + '...'
+                    : item.description}
+                </p>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <strong>${parseFloat(item.price).toFixed(2)}</strong>
+                  <span>{item.category}</span>
+                </div>
               </div>
+
               {item.userId === currentUserId && (
-                <p style={{ color: '#007bff', fontSize: '0.8rem' }}>(Your listing)</p>
+                <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+                  <button
+                    onClick={() => handleEdit(item._id)}
+                    style={{
+                      padding: '6px 10px',
+                      background: '#007bff',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(item._id)}
+                    style={{
+                      padding: '6px 10px',
+                      background: '#dc3545',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
               )}
             </div>
           ))}
@@ -214,5 +254,7 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+
 
 
