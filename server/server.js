@@ -5,6 +5,9 @@ const express = require('express');
 const connectDB = require('./config/db'); // MongoDB connection
 const cors = require('cors'); // Optional: allow frontend requests
 
+// Import your auth routes
+const authRoutes = require('./routes/authRoutes'); // <-- Add this line
+
 // Initialize Express
 const app = express();
 
@@ -20,9 +23,8 @@ app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
-// Add routes (example)
-// const productRoutes = require('./routes/productRoutes');
-// app.use('/api/products', productRoutes);
+// Add auth routes here
+app.use('/api/auth', authRoutes); // <-- Add this line
 
 // Start server
 const PORT = process.env.PORT || 5000;
